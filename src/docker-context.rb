@@ -1,5 +1,6 @@
 require 'fileutils'
 require 'securerandom'
+require 'shellwords'
 require 'tmpdir'
 
 require_relative 'id'
@@ -53,15 +54,24 @@ class DockerContext
 
 	# Build docker context
 	#
+	# TODO: Automatically untag the image and return the docker image
+	#     identification
+	#
 	# @return docker image identification
 	def build_image
-		image = 'mini-cross-' + SecureRandom.hex
+		image_tag = 'mini-cross-' + SecureRandom.hex
 
-		Shell.run %(
-			docker build -t "#{image}" "#{@directory}"
-		) or raise 'Failed building docker image'
 
-		return image
+		# Build docker image with temporary tag
+		Shell.run Shellwords.join([
+			'docker',
+			'build',
+			'--tag', image_tag,
+			@directory
+		]) or raise 'Failed building docker image'
+
+
+		return image_tag
 	end
 
 end
