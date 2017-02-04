@@ -1,5 +1,5 @@
+require 'digest'
 require 'fileutils'
-require 'securerandom'
 require 'shellwords'
 require 'tmpdir'
 
@@ -52,14 +52,17 @@ class DockerContext
 
 
 
-	# Build docker context
+	# Build docker context.
 	#
-	# TODO: Automatically untag the image and return the docker image
-	#     identification
+	# Will use the Dockerfile contents as image identification. This might
+	# result in multiple images using the same tag when differentiated only
+	# by contents of the context directories. Nevertheless this should be
+	# the exception, not the general case.
 	#
 	# @return docker image identification
 	def build_image
-		image_tag = 'mini-cross-' + SecureRandom.hex
+		hash = Digest::SHA256.file @dockerfile
+		image_tag = 'mini-cross-' + hash.hexdigest
 
 
 		# Build docker image with temporary tag
