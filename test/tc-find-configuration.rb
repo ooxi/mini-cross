@@ -2,6 +2,7 @@ require 'fileutils'
 require 'test/unit'
 require 'tmpdir'
 
+require_relative '../src/configuration'
 require_relative '../src/find-configuration'
 
 
@@ -11,58 +12,95 @@ require_relative '../src/find-configuration'
 class TestFindConfiguration < Test::Unit::TestCase
 
 
-	# Should find $dir/.mc/mc.yaml
+	# Should find
+	#
+	#  - yaml	$dir/.mc/mc.yaml
+	#  - context	$dir/.mc/
+	#  - base	$dir/
 	def test_FindUnnamedConfigurationInSubdirectory
 		Dir.mktmpdir do |dir|
 			FileUtils.mkdir_p("#{dir}/.mc")
-			File.write("#{dir}/.mc/mc.yaml", 'found')
+
+			File.write("#{dir}/.mc/mc.yaml", 'Yaml')
+			File.write("#{dir}/.mc/context", 'Context')
+			File.write("#{dir}/base", 'Base')
 
 			config = FindConfiguration.without_name(dir)
 			assert_not_nil(config, 'Failed finding unnamed configuration .mc/mc.yaml')
+			assert(config.kind_of?(Configuration), 'Return value must be of type Configuration')
 
-			assert_equal('found', File.read(config), 'Unexpected configuration content')
+			assert_equal('Yaml', File.read(config.yaml_file), 'Unexpected configuration content')
+			assert_equal('Context', File.read(config.context_directory + 'context'), 'Unexpected context content')
+			assert_equal('Base', File.read(config.base_directory + 'base'), 'Unexpected base content')
 		end
 	end
 
 
-	# Should find $dir/mc.yaml
+	# Should find
+	#
+	#  - yaml	$dir/mc.yaml
+	#  - context	nil
+	#  - base	$dir/
 	def test_FindUnnamedConfigurationInCurrentDirectory
 		Dir.mktmpdir do |dir|
-			File.write("#{dir}/mc.yaml", 'found')
+			File.write("#{dir}/mc.yaml", 'Yaml')
+			File.write("#{dir}/base", 'Base')
 
 			config = FindConfiguration.without_name(dir)
 			assert_not_nil(config, 'Failed finding unnamed configuration mc.yaml')
+			assert(config.kind_of?(Configuration), 'Return value must be of type Configuration')
 
-			assert_equal('found', File.read(config), 'Unexpected configuration content')
+			assert_equal('Yaml', File.read(config.yaml_file), 'Unexpected configuration content')
+			assert_nil(config.context_directory, "Should not find context directory but found #{config.context_directory}")
+			assert_equal('Base', File.read(config.base_directory + 'base'), 'Unexpected base content')
 		end
 	end
 
 
-	# Should find $dir/../.mc/mc.yaml
+	# Should find
+	#
+	#  - yaml	$dir/../.mc/mc.yaml
+	#  - context	$dir/../.mc/
+	#  - base	$dir/../
 	def test_FindUnnamedConfigurationInSubdirectoryOfParentDirectory
 		Dir.mktmpdir do |dir|
 			FileUtils.mkdir_p("#{dir}/src/some/project/")
 			FileUtils.mkdir_p("#{dir}/src/.mc/")
-			File.write("#{dir}/src/.mc/mc.yaml", 'found')
+
+			File.write("#{dir}/src/.mc/mc.yaml", 'Yaml')
+			File.write("#{dir}/src/.mc/context", 'Context')
+			File.write("#{dir}/src/base", 'Base')
 
 			config = FindConfiguration.without_name("#{dir}/src/some/project/")
 			assert_not_nil(config, 'Failed finding unnamed configuration .mc/mc.yaml in parent directory')
+			assert(config.kind_of?(Configuration), 'Return value must be of type Configuration')
 
-			assert_equal('found', File.read(config), 'Unexpected configuration content')
+			assert_equal('Yaml', File.read(config.yaml_file), 'Unexpected configuration content')
+			assert_equal('Context', File.read(config.context_directory + 'context'), 'Unexpected context content')
+			assert_equal('Base', File.read(config.base_directory + 'base'), 'Unexpected base content')
 		end
 	end
 
 
-	# Should find $dir/../mc.yaml
+	# Should find
+	#
+	#  - yaml	$dir/../mc.yaml
+	#  - context	nil
+	#  - base	$dir/../
 	def test_FindUnnamedConfigurationInParentDirectory
 		Dir.mktmpdir do |dir|
 			FileUtils.mkdir_p("#{dir}/src/some/project/")
-			File.write("#{dir}/src/mc.yaml", 'found')
+
+			File.write("#{dir}/src/mc.yaml", 'Yaml')
+			File.write("#{dir}/src/base", 'Base')
 
 			config = FindConfiguration.without_name("#{dir}/src/some/project/")
 			assert_not_nil(config, 'Failed finding unnamed configuration mc.yaml in parent directory')
+			assert(config.kind_of?(Configuration), 'Return value must be of type Configuration')
 
-			assert_equal('found', File.read(config), 'Unexpected configuration content')
+			assert_equal('Yaml', File.read(config.yaml_file), 'Unexpected configuration content')
+			assert_nil(config.context_directory, "Should not find context directory but found #{config.context_directory}")
+			assert_equal('Base', File.read(config.base_directory + 'base'), 'Unexpected base content')
 		end
 	end
 
@@ -79,73 +117,119 @@ class TestFindConfiguration < Test::Unit::TestCase
 
 
 
-	# Should find $dir/.mc/machine/machine.yaml
+	# Should find
+	#
+	#  - yaml	$dir/.mc/machine/machine.yaml
+	#  - context	$dir/.mc/machine/
+	#  - base	$dir/
 	def test_FindNamedConfigurationWithContext
 		Dir.mktmpdir do |dir|
 			FileUtils.mkdir_p("#{dir}/.mc/machine")
-			File.write("#{dir}/.mc/machine/machine.yaml", 'found')
+
+			File.write("#{dir}/.mc/machine/machine.yaml", 'Yaml')
+			File.write("#{dir}/.mc/machine/context", 'Context')
+			File.write("#{dir}/base", 'Base')
 
 			config = FindConfiguration.named(dir, 'machine')
 			assert_not_nil(config, 'Failed finding unnamed configuration .mc/machine/machine.yaml')
+			assert(config.kind_of?(Configuration), 'Return value must be of type Configuration')
 
-			assert_equal('found', File.read(config), 'Unexpected configuration content')
+			assert_equal('Yaml', File.read(config.yaml_file), 'Unexpected configuration content')
+			assert_equal('Context', File.read(config.context_directory + 'context'), 'Unexpected context content')
+			assert_equal('Base', File.read(config.base_directory + 'base'), 'Unexpected base content')
 		end
 	end
 
 
-	# Should find $dir/.mc/machine.yaml
+	# Should find
+	#
+	#  - yaml	$dir/.mc/machine.yaml
+	#  - context	nil
+	#  - base	$dir/
 	def test_FindNamedConfigurationWithoutContext
 		Dir.mktmpdir do |dir|
 			FileUtils.mkdir_p("#{dir}/.mc")
-			File.write("#{dir}/.mc/machine.yaml", 'found')
+
+			File.write("#{dir}/.mc/machine.yaml", 'Yaml')
+			File.write("#{dir}/base", 'Base')
 
 			config = FindConfiguration.named(dir, 'machine')
 			assert_not_nil(config, 'Failed finding unnamed configuration .mc/machine.yaml')
+			assert(config.kind_of?(Configuration), 'Return value must be of type Configuration')
 
-			assert_equal('found', File.read(config), 'Unexpected configuration content')
+			assert_equal('Yaml', File.read(config.yaml_file), 'Unexpected configuration content')
+			assert_nil(config.context_directory, "Should not find context directory but found #{config.context_directory}")
+			assert_equal('Base', File.read(config.base_directory + 'base'), 'Unexpected base content')
 		end
 	end
 
 
-	# Should find $dir/machine.yaml
+	# Should find
+	#
+	#  - yaml	$dir/machine.yaml
+	#  - context	nil
+	#  - base	$dir/
 	def test_FindNamedConfigurationWithoutContextInCurrentDirectory
 		Dir.mktmpdir do |dir|
-			File.write("#{dir}/machine.yaml", 'found')
+			File.write("#{dir}/machine.yaml", 'Yaml')
+			File.write("#{dir}/base", 'Base')
 
 			config = FindConfiguration.named(dir, 'machine')
 			assert_not_nil(config, 'Failed finding unnamed configuration machine.yaml')
+			assert(config.kind_of?(Configuration), 'Return value must be of type Configuration')
 
-			assert_equal('found', File.read(config), 'Unexpected configuration content')
+			assert_equal('Yaml', File.read(config.yaml_file), 'Unexpected configuration content')
+			assert_nil(config.context_directory, "Should not find context directory but found #{config.context_directory}")
+			assert_equal('Base', File.read(config.base_directory + 'base'), 'Unexpected base content')
 		end
 	end
 
 
-	# Should find $dir/../.mc/machine/machine.yaml
+	# Should find
+	#
+	#  - yaml	$dir/../.mc/machine/machine.yaml
+	#  - context	$dir/../.mc/machine/
+	#  - base	$dir/../
 	def test_FindNamedConfigurationWithContextInParentDirectory
 		Dir.mktmpdir do |dir|
 			FileUtils.mkdir_p("#{dir}/src/some/project/")
 			FileUtils.mkdir_p("#{dir}/src/.mc/machine/")
-			File.write("#{dir}/src/.mc/machine/machine.yaml", 'found')
+
+			File.write("#{dir}/src/.mc/machine/machine.yaml", 'Yaml')
+			File.write("#{dir}/src/.mc/machine/context", 'Context')
+			File.write("#{dir}/src/base", 'Base')
 
 			config = FindConfiguration.named("#{dir}/src/some/project/", 'machine')
 			assert_not_nil(config, 'Failed finding unnamed configuration .mc/machine/machine.yaml in parent directory')
+			assert(config.kind_of?(Configuration), 'Return value must be of type Configuration')
 
-			assert_equal('found', File.read(config), 'Unexpected configuration content')
+			assert_equal('Yaml', File.read(config.yaml_file), 'Unexpected configuration content')
+			assert_equal('Context', File.read(config.context_directory + 'context'), 'Unexpected context content')
+			assert_equal('Base', File.read(config.base_directory + 'base'), 'Unexpected base content')
 		end
 	end
 
 
-	# Should find $dir/../.mc/machine.yaml
+	# Should find
+	#
+	#  - yaml	$dir/../.mc/machine.yaml
+	#  - context	nil
+	#  - base	$dir/../
 	def test_FindNamedConfigurationWithoutContextInParentDirectory
 		Dir.mktmpdir do |dir|
 			FileUtils.mkdir_p("#{dir}/src/some/project/")
 			FileUtils.mkdir_p("#{dir}/src/.mc/")
-			File.write("#{dir}/src/.mc/machine.yaml", 'found')
+
+			File.write("#{dir}/src/.mc/machine.yaml", 'Yaml')
+			File.write("#{dir}/src/base", 'Base')
 
 			config = FindConfiguration.named("#{dir}/src/some/project/", 'machine')
 			assert_not_nil(config, 'Failed finding unnamed configuration .mc/machine.yaml in parent directory')
+			assert(config.kind_of?(Configuration), 'Return value must be of type Configuration')
 
-			assert_equal('found', File.read(config), 'Unexpected configuration content')
+			assert_equal('Yaml', File.read(config.yaml_file), 'Unexpected configuration content')
+			assert_nil(config.context_directory, "Should not find context directory but found #{config.context_directory}")
+			assert_equal('Base', File.read(config.base_directory + 'base'), 'Unexpected base content')
 		end
 	end
 
@@ -158,35 +242,5 @@ class TestFindConfiguration < Test::Unit::TestCase
 		end
 	end
 
-
-
-
-
-	# Should find $dir/.mc
-	def test_FindUnnamedContext
-		Dir.mktmpdir do |dir|
-			FileUtils.mkdir_p("#{dir}/.mc")
-			File.write("#{dir}/.mc/mc.yaml", 'found')
-
-			context = FindConfiguration.context("#{dir}/.mc/mc.yaml")
-			assert_not_nil(context, 'Failed finding unnamed context .mc/')
-
-			assert_equal("#{dir}/.mc", context, "Found unexpected context #{context}")
-		end
-	end
-
-
-	# Should find $dir/.mc/machine
-	def test_FindNamedContext
-		Dir.mktmpdir do |dir|
-			FileUtils.mkdir_p("#{dir}/.mc/machine")
-			File.write("#{dir}/.mc/machine/machine.yaml", 'found')
-
-			context = FindConfiguration.context("#{dir}/.mc/machine/machine.yaml")
-			assert_not_nil(context, 'Failed finding named context .mc/machine')
-
-			assert_equal("#{dir}/.mc/machine", context, "Found unexpected context #{context}")
-		end
-	end
 end
 

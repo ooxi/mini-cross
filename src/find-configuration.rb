@@ -1,5 +1,8 @@
 require 'pathname'
 
+require_relative 'configuration'
+require_relative 'configuration-type'
+
 
 
 class FindConfiguration
@@ -17,10 +20,10 @@ class FindConfiguration
 	#
 	# @return path to configuration or nil if not found
 	def self.without_name(directory)
-		return by_test(directory, [
-			'.mc/mc.yaml',
-			'mc.yaml'
-		])
+		a = ConfigurationType.new('.mc/mc.yaml',	'.mc/',	'.')
+		b = ConfigurationType.new('mc.yaml',		nil,	'.')
+
+		return by_type(Pathname.new(directory), [a, b])
 	end
 
 
@@ -37,11 +40,11 @@ class FindConfiguration
 	# @param name Machine name
 	# @return path to configuration or nil if not found
 	def self.named(directory, name)
-		return by_test(directory, [
-			".mc/#{name}/#{name}.yaml",
-			".mc/#{name}.yaml",
-			"#{name}.yaml"
-		])
+		a = ConfigurationType.new(".mc/#{name}/#{name}.yaml",	".mc/#{name}/",	'.')
+		b = ConfigurationType.new(".mc/#{name}.yaml",		nil,		'.')
+		c = ConfigurationType.new("#{name}.yaml",		nil,		'.')
+
+		return by_type(Pathname.new(directory), [a, b, c])
 	end
 
 
@@ -52,58 +55,30 @@ class FindConfiguration
 	# reached.
 	#
 	# @param directory Path reference
-	# @param tests Array of tests to execute
+	# @param types Array of {@link ConfigurationType} to test
 	#
-	# @return First successful test or nil
-	def self.by_test(directory, tests)
-		directory = File.expand_path(directory)
+	# @return First successful {@link ConfigurationType} as
+	#     {@link Configuration} or nil
+	def self.by_type(directory, types)
+		directory = directory.expand_path
 
-		# Test specific locations
-		tests.each do |test|
-			config = "#{directory}/#{test}"
+		# Ascend to parent directory until filesystem root
+		directory.ascend do |dir|
 
-			if File.file? config
-				return config
+			# Test specific locations
+			types.each do |type|
+				config = type.yaml_file(dir)
+
+				if config.file?
+					return Configuration.new(dir, type)
+				end
 			end
-		end
-
-		# File not found, ascend to parent directory if not already root
-		parent = File.expand_path(File.join(directory, './..'))
-
-		if parent == directory
-			return nil
-		end
-
-		return by_test(parent, tests)
-	end
-
-	private_class_method :by_test
-
-
-
-
-
-	# @param config Configuration file path
-	# @return Context directory of configuration or nil if non available
-	def self.context(config)
-		config = Pathname.new File.expand_path(config)
-
-		basename = File.basename(config.basename, '.yaml')
-		parent = config.dirname.basename.to_s
-		grandparent = config.dirname.dirname.basename.to_s
-
-		# .mc/mc.yaml → .mc/
-		if ('.mc' == parent) && ('mc' == basename)
-			return config.dirname.to_s
-		end
-
-		# .mc/machine/machine.yaml → .mc/machine/
-		if ('.mc' == grandparent) && (basename == parent)
-			return config.dirname.to_s
 		end
 
 		return nil
 	end
+
+	private_class_method :by_type
 
 end
 
