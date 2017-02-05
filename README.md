@@ -6,7 +6,7 @@ Provides user configured development environments.
 
 
 
-# CLI
+## CLI
 
 There two ways of invoking mini-cross
 
@@ -24,7 +24,7 @@ second is crafted toward comfort for interactive use.
 
 
 
-# Command invocation
+### Command invocation
 
     mini-cross <machine> <command>+
 
@@ -39,7 +39,7 @@ the default docker entry point (most likely a [bash][1] shell).
 
 
 
-# Shell invocation
+### Shell invocation
 
     mini-cross [<machine>]
 
