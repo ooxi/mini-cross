@@ -4,40 +4,40 @@ require 'test/unit'
 require 'tmpdir'
 
 require_relative '../src/docker-cli'
-require_relative '../src/docker/ubuntu'
+require_relative '../src/docker/fedora'
 require_relative '../src/id'
 
 
 
 
 
-class TestUbuntuDockerContext < Test::Unit::TestCase
+class TestFedoraDockerContext < Test::Unit::TestCase
 
-	# Builds a minimal Ubuntu image
+	# Builds a minimal Fedora image
 	def test_Smoke
-		ubuntu = UbuntuDockerContext.new Id.real, 'ubuntu:16.04'
-		ubuntu.install ['cowsay']
+		fedora = FedoraDockerContext.new Id.real, 'fedora:25'
+		fedora.install ['cowsay']
 
 
-		# Build Ubuntu image
-		cookie = 'f53fc196-fcf6-45ae-add9-3a6ab914189d'
+		# Build Fedora image
+		cookie = '0bd82167-021e-4e9a-b2f1-0dd44b56a671'
 		image = nil
 
 		Dir.mktmpdir do |dir|
 			directory = Pathname.new dir
 
 			file = directory + 'cowsay.sh'
-			File.write(file, "#!/usr/games/cowsay #{cookie}")
+			File.write(file, "#!/usr/bin/cowsay #{cookie}")
 			File.chmod(0777, file)
 
-			ubuntu.copy directory
-			image = DockerCli.build_context ubuntu
+			fedora.copy directory
+			image = DockerCli.build_context fedora
 		end
 
 		assert_not_nil(image, 'Invalid docker image identification')
 
 
-		# Run Ubuntu container
+		# Run Fedora container
 		Dir.mktmpdir do |dir|
 			base_directory = Pathname.new dir
 			command = ['/cowsay.sh']

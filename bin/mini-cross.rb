@@ -4,6 +4,7 @@
 
 require_relative '../src/cli'
 require_relative '../src/docker-cli'
+require_relative '../src/docker/fedora'
 require_relative '../src/docker/ubuntu'
 require_relative '../src/find-configuration'
 require_relative '../src/id'
@@ -41,7 +42,8 @@ end
 
 
 # Prepare docker context
-dc = UbuntuDockerContext.new(Id.real, 'ubuntu:16.04')
+dc = FedoraDockerContext.new(Id.real, 'fedora:25')
+#dc = UbuntuDockerContext.new(Id.real, 'ubuntu:16.04')
 
 dc.dockerfile <<-DOCKERFILE
 	RUN	mkdir -p '#{config.base_directory}'
