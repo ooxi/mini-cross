@@ -63,7 +63,7 @@ class FindConfiguration
 	def self.named(directory, name)
 		a = ConfigurationType.new(".mc/#{name}/#{name}.yaml",	".mc/#{name}/",	'.')
 		b = ConfigurationType.new(".mc/#{name}.yaml",		nil,		'.')
-		c = ConfigurationType.new("#{name}.yaml",		nil,		'.')
+		c = ConfigurationType.new("mc.#{name}.yaml",		nil,		'.')
 
 		return by_type(Pathname.new(directory), [a, b, c])
 	end

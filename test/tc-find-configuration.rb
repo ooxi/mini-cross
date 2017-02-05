@@ -187,16 +187,16 @@ class TestFindConfiguration < Test::Unit::TestCase
 
 	# Should find
 	#
-	#  - yaml	$dir/machine.yaml
+	#  - yaml	$dir/mc.machine.yaml
 	#  - context	nil
 	#  - base	$dir/
 	def test_FindNamedConfigurationWithoutContextInCurrentDirectory
 		Dir.mktmpdir do |dir|
-			File.write("#{dir}/machine.yaml", 'Yaml')
+			File.write("#{dir}/mc.machine.yaml", 'Yaml')
 			File.write("#{dir}/base", 'Base')
 
 			config = FindConfiguration.named(dir, 'machine')
-			assert_not_nil(config, 'Failed finding unnamed configuration machine.yaml')
+			assert_not_nil(config, 'Failed finding unnamed configuration mc.machine.yaml')
 			assert(config.kind_of?(Configuration), 'Return value must be of type Configuration')
 
 			assert_equal('Yaml', File.read(config.yaml_file), 'Unexpected configuration content')
