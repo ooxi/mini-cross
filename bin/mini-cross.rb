@@ -2,11 +2,9 @@
 #
 # @author ooxi
 
-require 'pathname'
-require 'shellwords'
-
 require_relative '../src/cli'
-require_relative '../src/docker-context'
+require_relative '../src/docker-cli'
+require_relative '../src/docker/ubuntu'
 require_relative '../src/find-configuration'
 require_relative '../src/id'
 
@@ -43,29 +41,17 @@ end
 
 
 # Prepare docker context
-begin
-	dc = DockerContext.new
-	dc.dockerfile <<-DOCKERFILE
-		RUN	mkdir -p '#{config.base_directory}'
-		VOLUME	'#{config.base_directory}'
-		WORKDIR	'#{working_directory}'
-	DOCKERFILE
+dc = UbuntuDockerContext.new(Id.real, 'ubuntu:16.04')
 
-	docker_image = dc.build_image
-ensure
-	dc.close if dc
-end
+dc.dockerfile <<-DOCKERFILE
+	RUN	mkdir -p '#{config.base_directory}'
+	VOLUME	'#{config.base_directory}'
+	WORKDIR	'#{working_directory}'
+DOCKERFILE
 
 
 
-# Switch to docker container
-exec(Shellwords.join([
-	'docker',
-	'run',
-	'-it',
-	'--rm',
-	'--user', "#{Id.user_id}:#{Id.group_id}",
-	'--volume', "#{config.base_directory}:#{config.base_directory}",
-	"#{docker_image}"
-] + cli.command))
+# Build image and switch to docker container
+image = DockerCli.build_context dc
+DockerCli.run Id.real, image, config.base_directory, cli.command
 
