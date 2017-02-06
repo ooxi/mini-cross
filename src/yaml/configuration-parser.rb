@@ -19,7 +19,7 @@
 #
 #  3. This notice may not be removed or altered from any source distribution.
 
-require 'yaml'
+require 'front_matter_parser'
 
 require_relative '../configuration'
 require_relative 'base-instruction'
@@ -51,13 +51,13 @@ class YamlConfigurationParser
 		end
 
 
-		# Parse YAML configuration, consting for hashes and shell
-		# scripts
+		# Parse configuration, consting of a YAML front matter and a
+		# shell script
 		File.open(configuration.yaml_file, 'r:UTF-8') do |config|
-			YAML.load_stream(config.read) do |node|
-				instruction = parse_node node
-				instructions.append instruction
-			end
+			parsed = FrontMatterParser.parse(config.read)
+
+			instructions.append (parse_node parsed.front_matter)
+			instructions.append (parse_node parsed.content)
 		end
 
 		return instructions

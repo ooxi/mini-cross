@@ -1,0 +1,10 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    front_matter_parser (0.0.4)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  front_matter_parser
