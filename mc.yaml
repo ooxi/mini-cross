@@ -1,0 +1,11 @@
+---
+base: ubuntu:16.04
+install:
+ - bundler
+ - curl
+ - git
+ - ruby
+ - tar
+ - xz-utils
+---
+
