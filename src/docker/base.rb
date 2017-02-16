@@ -22,6 +22,8 @@
 require 'fileutils'
 require 'pathname'
 
+require_relative 'dockerfile'
+
 
 
 class BaseDockerContext
@@ -29,6 +31,10 @@ class BaseDockerContext
 
 	public
 	def initialize(dockerfile)
+		if not dockerfile.kind_of? Dockerfile
+			raise "Expected \`dockerfile' to be of type \`Dockerfile' but is \`#{dockerfile.class}'"
+		end
+
 		@dockerfile = dockerfile
 		@sources = Array.new
 	end
@@ -37,9 +43,10 @@ class BaseDockerContext
 
 
 
-	#protected
-	def dockerfile(content)
-		@dockerfile += "\n\n\n" + content
+	# @warning Still required by `mini-cross.rb'
+#	protected
+	def dockerfile
+		return @dockerfile
 	end
 
 
@@ -52,7 +59,9 @@ class BaseDockerContext
 		# Sources will be copied into context directory named like array
 		# index
 		@sources.push(source)
-		dockerfile "COPY #{@sources.size - 1} /"
+		index = @sources.size - 1
+
+		@dockerfile.copy index.to_s, '/'
 	end
 
 
@@ -71,7 +80,7 @@ class BaseDockerContext
 		raise '`directory\' must be a pathname' unless directory.kind_of?(Pathname)
 
 		File.open(directory + 'Dockerfile', 'w:UTF-8') do |f|
-			f.write @dockerfile
+			f.write @dockerfile.to_s
 		end
 
 		@sources.each_with_index do |source, index|

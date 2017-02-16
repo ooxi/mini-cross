@@ -19,9 +19,6 @@
 #
 #  3. This notice may not be removed or altered from any source distribution.
 
-require 'base64'
-require 'shellwords'
-
 require_relative '../docker/base'
 require_relative 'instruction'
 
@@ -39,11 +36,8 @@ class YamlRunInstruction < YamlInstruction
 	def apply_to(docker_context)
 		raise '`docker-context\' should be of type BaseDockerContext' unless docker_context.kind_of?(BaseDockerContext)
 
-		echo = Shellwords.join ['echo', Base64.strict_encode64(@script)]
-
-		docker_context.dockerfile <<-DOCKERFILE
-			RUN	#{echo} | base64 -d - | bash
-		DOCKERFILE
+		df = docker_context.dockerfile
+		df.run_sh @script
 	end
 end
 

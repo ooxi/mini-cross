@@ -37,40 +37,38 @@ class FedoraDockerContext < BaseDockerContext
 		user = id.user_name
 		group = id.group_name
 
-		dockerfile = <<-DOCKERFILE
-			FROM	#{from}
 
-			# Ensure unicode support
-			RUN	dnf install -y glibc-locale-source
-			RUN	localedef  --force --inputfile=en_US --charmap=UTF-8 en_US.UTF-8
-			ENV	LANG en_US.UTF-8
-			ENV	LANGUAGE en_US:en
-			ENV	LC_ALL en_US.UTF-8
+		df = Dockerfile.new
+		df.from		from
 
-			# Provide password-less sudo
-			RUN	dnf install -y sudo
-			RUN	echo 'ALL            ALL = (ALL) NOPASSWD: ALL' >> /etc/sudoers
+		# Ensure unicode support
+		df.run_sh	'dnf install -y glibc-locale-source'
+		df.run_sh	'localedef  --force --inputfile=en_US --charmap=UTF-8 en_US.UTF-8'
+		df.env		'LANG',		'en_US.UTF-8'
+		df.env		'LANGUAGE',	'en_US:en'
+		df.env		'LC_ALL',	'en_US.UTF-8'
 
-			# Add user in context similar to host user
-			RUN	groupadd --gid=#{gid} #{group}
-			RUN	useradd --gid=#{gid} --uid=#{uid} --home='/home/#{user}' '#{user}'
-			RUN	mkdir -p '/home/#{user}'
-			RUN	chown -R '#{uid}:#{gid}' '/home/#{user}'
-			USER	'#{user}'
+		# Provide password-less sudo
+		df.run_sh	'dnf install -y sudo'
+		df.run_sh	"echo 'ALL            ALL = (ALL) NOPASSWD: ALL' >> /etc/sudoers"
 
-			# Choose bash as default shell
-			CMD	bash
-		DOCKERFILE
+		# Add user in context similar to host user
+		df.run_exec	['groupadd', '--gid', gid, group]
+		df.run_exec	['useradd', '--gid', gid, '--uid', uid, '--home', "/home/#{user}", user]
+		df.run_exec	['mkdir', '-p', "/home/#{user}"]
+		df.run_exec	['chown', '-R', "#{uid}:#{gid}", "/home/#{user}"]
+		df.user		user
 
-		super(dockerfile)
+		# Choose bash as default shell
+		df.cmd_exec	['/bin/bash']
+
+		super(df)
 	end
 
 
 
 	def install(packages)
-		dockerfile <<-DOCKERFILE
-			RUN	sudo dnf -y install #{Shellwords.join packages}
-		DOCKERFILE
+		dockerfile.run_sh "sudo dnf -y install #{Shellwords.join packages}"
 	end
 
 end

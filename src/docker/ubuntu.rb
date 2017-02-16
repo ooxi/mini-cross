@@ -37,36 +37,35 @@ class UbuntuDockerContext < BaseDockerContext
 		user = id.user_name
 		group = id.group_name
 
-		dockerfile = <<-DOCKERFILE
-			FROM	#{from}
 
-			# Ensure unicode support
-			RUN	locale-gen en_US.UTF-8
-			ENV	LANG en_US.UTF-8
-			ENV	LANGUAGE en_US:en
-			ENV	LC_ALL en_US.UTF-8
+		df = Dockerfile.new
+		df.from		from
 
-			# Provide password-less sudo
-			RUN	apt-get -y update && apt-get -y install	sudo
-			RUN	echo 'ALL            ALL = (ALL) NOPASSWD: ALL' >> /etc/sudoers
+		# Ensure unicode support
+		df.run_sh	'locale-gen en_US.UTF-8'
+		df.env		'LANG',		'en_US.UTF-8'
+		df.env		'LANGUAGE',	'en_US:en'
+		df.env		'LC_ALL',	'en_US.UTF-8'
 
-			# Add user in context similar to host user
-			RUN	groupadd --gid=#{gid} #{group}
-			RUN	useradd --gid=#{gid} --uid=#{uid} --home='/home/#{user}' '#{user}'
-			RUN	mkdir -p '/home/#{user}'
-			RUN	chown -R '#{uid}:#{gid}' '/home/#{user}'
-			USER	'#{user}'
-		DOCKERFILE
+		# Provide password-less sudo
+		df.run_sh	'apt-get -y update && apt-get -y install sudo'
+		df.run_sh	"echo 'ALL            ALL = (ALL) NOPASSWD: ALL' >> /etc/sudoers"
 
-		super(dockerfile)
+		# Add user in context similar to host user
+		df.run_exec	['groupadd', '--gid', gid, group]
+		df.run_exec	['useradd', '--gid', gid, '--uid', uid, '--home', "/home/#{user}", user]
+		df.run_exec	['mkdir', '-p', "/home/#{user}"]
+		df.run_exec	['chown', '-R', "#{uid}:#{gid}", "/home/#{user}"]
+		df.user		user
+
+
+		super(df)
 	end
 
 
 
 	def install(packages)
-		dockerfile <<-DOCKERFILE
-			RUN	sudo apt-get -y update && sudo apt-get -y install #{Shellwords.join packages}
-		DOCKERFILE
+		dockerfile.run_sh "sudo apt-get -y update && sudo apt-get -y install #{Shellwords.join packages}"
 	end
 
 end

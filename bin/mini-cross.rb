@@ -69,17 +69,17 @@ if instructions.base.nil?
 end
 
 
+
 # Create and prepare docker context as instructed by configuration
 context_factory = DockerContextFactory.new Id.real
 
 context = context_factory.from_specification instructions.base
 instructions.apply_to context
 
-context.dockerfile <<-DOCKERFILE
-	RUN	mkdir -p '#{config.base_directory}'
-	VOLUME	'#{config.base_directory}'
-	WORKDIR	'#{working_directory}'
-DOCKERFILE
+df = context.dockerfile
+df.run_exec	['mkdir', '-p', config.base_directory]
+df.volume	config.base_directory
+df.workdir	working_directory
 
 
 

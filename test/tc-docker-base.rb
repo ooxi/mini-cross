@@ -23,6 +23,7 @@ require 'test/unit'
 require 'tmpdir'
 
 require_relative '../src/docker/base'
+require_relative '../src/docker/dockerfile'
 
 
 
@@ -31,17 +32,17 @@ require_relative '../src/docker/base'
 class TestBaseDockerContext < Test::Unit::TestCase
 
 	def test_Initialize
-		context = MockDockerContext.new 'my docker file'
+		context = MockDockerContext.new MockDockerfile.new
 		assert(context.kind_of?(BaseDockerContext), 'Expected context to be of type `BaseDockerContext\'')
 
 		dockerfile = context.instance_variable_get('@dockerfile')
-		assert_equal('my docker file', dockerfile, 'Unexpected docker file content')
+		assert(dockerfile.kind_of?(MockDockerfile), "Unexpected dockerfile \`#{dockerfile}'")
 	end
 
 
 
 	def test_Copy
-		context = MockDockerContext.new 'my docker file'
+		context = MockDockerContext.new MockDockerfile.new
 
 		Dir.mktmpdir do |dir|
 			source = Pathname.new dir
@@ -59,7 +60,7 @@ class TestBaseDockerContext < Test::Unit::TestCase
 
 
 	def test_InstallNoOverwrite
-		dc = BaseDockerContext.new 'my docker file'
+		dc = BaseDockerContext.new MockDockerfile.new
 		dc.install
 	rescue
 		# Expected
@@ -70,14 +71,14 @@ class TestBaseDockerContext < Test::Unit::TestCase
 
 
 	def test_InstallOverwrite
-		dc = MockDockerContext.new 'my docker file'
+		dc = MockDockerContext.new MockDockerfile.new
 		assert_equal('61fd08d7-36a2-4468-988e-91a39fc17bd8', dc.install(['test-package']), 'Unexpected result of overwritten `install\' method')
 	end
 
 
 
 	def test_WriteToSimple
-		dc = BaseDockerContext.new 'my docker file'
+		dc = BaseDockerContext.new MockDockerfile.new
 
 		Dir.mktmpdir do |dir|
 			directory = Pathname.new dir
@@ -92,7 +93,7 @@ class TestBaseDockerContext < Test::Unit::TestCase
 
 
 	def test_WriteToExtended
-		dc = BaseDockerContext.new 'my docker file'
+		dc = BaseDockerContext.new MockDockerfile.new
 
 		Dir.mktmpdir do |dir|
 			source = Pathname.new dir
@@ -118,6 +119,16 @@ class TestBaseDockerContext < Test::Unit::TestCase
 end
 
 
+
+
+
+# Required as argument to BaseDockerContext::initialize
+class MockDockerfile < Dockerfile
+
+	def to_s
+		return 'my docker file'
+	end
+end
 
 
 
