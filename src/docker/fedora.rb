@@ -22,6 +22,8 @@
 require 'shellwords'
 
 require_relative 'base'
+require_relative 'docker-run-arguments'
+require_relative 'dockerfile'
 
 
 
@@ -62,7 +64,12 @@ class FedoraDockerContext < BaseDockerContext
 		# Choose bash as default shell
 		df.cmd_exec	['/bin/bash']
 
-		super(df)
+
+		dr = DockerRunArguments.new
+		dr.user		id
+
+
+		super(df, dr)
 	end
 
 

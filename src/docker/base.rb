@@ -22,6 +22,7 @@
 require 'fileutils'
 require 'pathname'
 
+require_relative 'docker-run-arguments'
 require_relative 'dockerfile'
 
 
@@ -30,12 +31,16 @@ class BaseDockerContext
 
 
 	public
-	def initialize(dockerfile)
+	def initialize(dockerfile, run)
 		if not dockerfile.kind_of? Dockerfile
 			raise "Expected \`dockerfile' to be of type \`Dockerfile' but is \`#{dockerfile.class}'"
 		end
+		if not run.kind_of? DockerRunArguments
+			raise "Expected \`RUN' to be of type \`DockerRunArguments' but is \`#{run.class}'"
+		end
 
 		@dockerfile = dockerfile
+		@run = run
 		@sources = Array.new
 	end
 
@@ -47,6 +52,11 @@ class BaseDockerContext
 #	protected
 	def dockerfile
 		return @dockerfile
+	end
+
+#	protected
+	def run
+		return @run
 	end
 
 

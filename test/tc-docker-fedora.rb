@@ -63,7 +63,7 @@ class TestFedoraDockerContext < Test::Unit::TestCase
 			base_directory = Pathname.new dir
 			command = ['/cowsay.sh']
 
-			output = `#{DockerCli.run_cmd Id.real, image, base_directory, command}`
+			output = `#{DockerCli.run_cmd image, fedora.run, command}`
 			assert(output.include?(cookie), "Output should include cookie \`#{cookie}' but \`#{output}' does not")
 			assert(output.include?('(__)\\       )\\/\\'), "Output should include cow but \`#{output}' does not")
 		end

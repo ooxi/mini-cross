@@ -25,6 +25,7 @@ require 'shellwords'
 require 'tmpdir'
 
 require_relative 'docker/base'
+require_relative 'docker/docker-run-arguments'
 require_relative 'shell'
 
 
@@ -89,34 +90,32 @@ class DockerCli
 
 	# Replaces current process with executed docker context
 	#
-	# @param id Id-like interface for access user and group identification
 	# @param image Docker image identification
-	# @param base_directory Directory to be provided as base volume in
-	#     docker context
+	# @param arguments Arguments to passed to docker run
 	# @param command Array of commands to be passed as arguments to docker
 	#     entry point
-	def self.run(id, image, base_directory, command)
-		exec(DockerCli.run_cmd id, image, base_directory, command)
+	def self.run(image, arguments, command)
+		exec(DockerCli.run_cmd image, arguments, command)
 	end
 
 	# Returns the command, {@link DockerCli.run} should exec.
 	#
 	# @VisibleForTesting
-	def self.run_cmd(id, image, base_directory, command)
-		uid = id.user_id
-		gid = id.group_id
+	def self.run_cmd(image, arguments, command)
+		if not arguments.kind_of? DockerRunArguments
+			raise "\`arguments' must be of type DockerRunArguments"
+		end
 
-		base_directory = Pathname.new(base_directory).expand_path
-
-		return Shellwords.join([
+		escaped_arguments = [
 			'docker',
 			'run',
 			'-it',
 			'--rm',
-			'--user', "#{uid}:#{gid}",
-			'--volume', "#{base_directory}:#{base_directory}",
-			"#{image}"
-		] + command)
+		] + arguments.to_args
+
+		unescaped_arguments = [image] + command
+
+		return escaped_arguments.join(' ') + ' ' + Shellwords.join(unescaped_arguments)
 	end
 end
 

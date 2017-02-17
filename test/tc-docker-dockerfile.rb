@@ -33,7 +33,7 @@ class TestDockerfile < Test::Unit::TestCase
 	# Integration
 	def test_Dockerfile
 		dockerfile = Dockerfile.new
-	
+
 		dockerfile.from 'ubuntu:16.04'
 		dockerfile.run_sh 'apt-get -y update && apt-get -y install sudo'
 

@@ -23,6 +23,7 @@ require 'test/unit'
 require 'tmpdir'
 
 require_relative '../src/docker/base'
+require_relative '../src/docker/docker-run-arguments'
 require_relative '../src/docker/dockerfile'
 
 
@@ -32,7 +33,7 @@ require_relative '../src/docker/dockerfile'
 class TestBaseDockerContext < Test::Unit::TestCase
 
 	def test_Initialize
-		context = MockDockerContext.new MockDockerfile.new
+		context = MockDockerContext.new
 		assert(context.kind_of?(BaseDockerContext), 'Expected context to be of type `BaseDockerContext\'')
 
 		dockerfile = context.instance_variable_get('@dockerfile')
@@ -42,7 +43,7 @@ class TestBaseDockerContext < Test::Unit::TestCase
 
 
 	def test_Copy
-		context = MockDockerContext.new MockDockerfile.new
+		context = MockDockerContext.new
 
 		Dir.mktmpdir do |dir|
 			source = Pathname.new dir
@@ -60,7 +61,7 @@ class TestBaseDockerContext < Test::Unit::TestCase
 
 
 	def test_InstallNoOverwrite
-		dc = BaseDockerContext.new MockDockerfile.new
+		dc = BaseDockerContext.new MockDockerfile.new, MockDockerRunArguments.new
 		dc.install
 	rescue
 		# Expected
@@ -71,14 +72,14 @@ class TestBaseDockerContext < Test::Unit::TestCase
 
 
 	def test_InstallOverwrite
-		dc = MockDockerContext.new MockDockerfile.new
+		dc = MockDockerContext.new
 		assert_equal('61fd08d7-36a2-4468-988e-91a39fc17bd8', dc.install(['test-package']), 'Unexpected result of overwritten `install\' method')
 	end
 
 
 
 	def test_WriteToSimple
-		dc = BaseDockerContext.new MockDockerfile.new
+		dc = BaseDockerContext.new MockDockerfile.new, MockDockerRunArguments.new
 
 		Dir.mktmpdir do |dir|
 			directory = Pathname.new dir
@@ -93,7 +94,7 @@ class TestBaseDockerContext < Test::Unit::TestCase
 
 
 	def test_WriteToExtended
-		dc = BaseDockerContext.new MockDockerfile.new
+		dc = BaseDockerContext.new MockDockerfile.new, MockDockerRunArguments.new
 
 		Dir.mktmpdir do |dir|
 			source = Pathname.new dir
@@ -132,8 +133,22 @@ end
 
 
 
+# Required as argument to BaseDockerContext::initialize
+class MockDockerRunArguments < DockerRunArguments
+
+	def to_args
+		return []
+	end
+end
+
+
+
 # Required to ensure correct behaviour of overwritten method
 class MockDockerContext < BaseDockerContext
+
+	def initialize
+		super MockDockerfile.new, MockDockerRunArguments.new
+	end
 
 	def install(package)
 		return '61fd08d7-36a2-4468-988e-91a39fc17bd8'

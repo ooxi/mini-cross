@@ -76,14 +76,13 @@ context_factory = DockerContextFactory.new Id.real
 context = context_factory.from_specification instructions.base
 instructions.apply_to context
 
-df = context.dockerfile
-df.run_exec	['mkdir', '-p', config.base_directory]
-df.volume	config.base_directory
-df.workdir	working_directory
+dr = context.run
+dr.add_volume	config.base_directory, config.base_directory, ['rw']
+dr.workdir	working_directory
 
 
 
 # Build image and switch to docker container
 image = DockerCli.build_context context
-DockerCli.run Id.real, image, config.base_directory, cli.command
+DockerCli.run image, context.run, cli.command
 

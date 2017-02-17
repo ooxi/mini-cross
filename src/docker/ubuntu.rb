@@ -22,6 +22,8 @@
 require 'shellwords'
 
 require_relative 'base'
+require_relative 'docker-run-arguments'
+require_relative 'dockerfile'
 
 
 
@@ -59,7 +61,11 @@ class UbuntuDockerContext < BaseDockerContext
 		df.user		user
 
 
-		super(df)
+		dr = DockerRunArguments.new
+		dr.user		id
+
+
+		super(df, dr)
 	end
 
 
