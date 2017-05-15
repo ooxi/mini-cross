@@ -44,6 +44,7 @@ class UbuntuDockerContext < BaseDockerContext
 		df.from		from
 
 		# Ensure unicode support
+		df.run_sh	'apt-get -y update && apt-get -y install locales'
 		df.run_sh	'locale-gen en_US.UTF-8'
 		df.env		'LANG',		'en_US.UTF-8'
 		df.env		'LANGUAGE',	'en_US:en'
