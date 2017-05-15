@@ -35,8 +35,8 @@ require_relative '../src/id'
 class TestFedoraDockerContext < Test::Unit::TestCase
 
 	# Builds a minimal Fedora image
-	def test_Smoke
-		fedora = FedoraDockerContext.new Id.real, 'fedora:25'
+	def execute_smoke_test(version)
+		fedora = FedoraDockerContext.new Id.real, version
 		fedora.install ['cowsay']
 
 
@@ -69,6 +69,23 @@ class TestFedoraDockerContext < Test::Unit::TestCase
 		end
 
 		`#{Shellwords.join ['docker', 'rmi', image]}`
+	end
+
+
+
+
+	# Seems to work, but cowsay is broken: Can't locate Encode.pm in @INC
+	# (you may need to install the Encode module)
+#	def test_Fedora_24
+#		self.execute_smoke_test 'fedora:24'
+#	end
+
+	def test_Fedora_25
+		self.execute_smoke_test 'fedora:25'
+	end
+
+	def test_Fedora_Rawhide
+		self.execute_smoke_test 'fedora:rawhide'
 	end
 end
 

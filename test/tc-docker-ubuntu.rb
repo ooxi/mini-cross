@@ -35,8 +35,8 @@ require_relative '../src/id'
 class TestUbuntuDockerContext < Test::Unit::TestCase
 
 	# Builds a minimal Ubuntu image
-	def test_Smoke
-		ubuntu = UbuntuDockerContext.new Id.real, 'ubuntu:16.04'
+	def execute_smoke_test(version)
+		ubuntu = UbuntuDockerContext.new Id.real, version
 		ubuntu.install ['cowsay']
 
 
@@ -69,6 +69,26 @@ class TestUbuntuDockerContext < Test::Unit::TestCase
 		end
 
 		`#{Shellwords.join ['docker', 'rmi', image]}`
+	end
+
+
+
+
+
+	def test_Ubuntu_1404
+		self.execute_smoke_test 'ubuntu:14.04'
+	end
+
+	def test_Ubuntu_1604
+		self.execute_smoke_test 'ubuntu:16.04'
+	end
+
+	def test_Ubuntu_1610
+		self.execute_smoke_test 'ubuntu:16.10'
+	end
+
+	def test_Ubuntu_1704
+		self.execute_smoke_test 'ubuntu:17.04'
 	end
 end
 
