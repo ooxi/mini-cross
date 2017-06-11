@@ -27,6 +27,7 @@ require_relative 'collection-instruction'
 require_relative 'copy-instruction'
 require_relative 'install-instruction'
 require_relative 'nop-instruction'
+require_relative 'publish-instruction'
 require_relative 'run-instruction'
 
 
@@ -100,6 +101,8 @@ class YamlConfigurationParser
 				instruction.append parse_base(value)
 			elsif 'install' == key
 				instruction.append parse_install(value)
+			elsif 'publish' == key
+				instruction.append parse_publish(value)
 			else
 				raise "Unsupported key \`#{key}' in YAML hash node \`#{hash}'"
 			end
@@ -124,6 +127,13 @@ class YamlConfigurationParser
 
 
 
+	# @return {@link YamlPublishInstruction}
+	def self.parse_publish(packages)
+		return YamlPublishInstruction.new packages
+	end
+
+
+
 
 
 	private_class_method :parse_node
@@ -131,6 +141,7 @@ class YamlConfigurationParser
 	private_class_method :parse_hash
 	private_class_method :parse_base
 	private_class_method :parse_install
+	private_class_method :parse_publish
 
 end
 

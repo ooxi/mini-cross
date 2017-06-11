@@ -44,6 +44,38 @@ class TestDockerfile < Test::Unit::TestCase
 	end
 
 
+	def test_DockerPublishArgument_IpHostContainer
+		publication = DockerPublishArgument.new '127.0.0.1', 8080, 80
+		args = publication.to_args
+
+		assert_equal(['-p', '127.0.0.1:8080:80'], args, 'Wrong docker publish arguments')
+	end
+
+
+	def test_DockerPublishArgument_IpContainer
+		publication = DockerPublishArgument.new '127.0.0.1', nil, 80
+		args = publication.to_args
+
+		assert_equal(['-p', '127.0.0.1::80'], args, 'Wrong docker publish arguments')
+	end
+
+
+	def test_DockerPublishArgument_HostContainer
+		publication = DockerPublishArgument.new nil, 8080, 80
+		args = publication.to_args
+
+		assert_equal(['-p', '8080:80'], args, 'Wrong docker publish arguments')
+	end
+
+
+	def test_DockerPublishArgument_Container
+		publication = DockerPublishArgument.new nil, nil, 80
+		args = publication.to_args
+
+		assert_equal(['-p', '80'], args, 'Wrong docker publish arguments')
+	end
+
+
 	def test_DockerUserArgument_NoUser
 		user = DockerUserArgument.new nil
 		args = user.to_args

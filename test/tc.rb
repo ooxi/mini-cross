@@ -34,4 +34,5 @@ require_relative 'tc-shell'
 require_relative 'tc-yaml-base-instruction'
 require_relative 'tc-yaml-collection-instruction'
 require_relative 'tc-yaml-configuration-parser'
+require_relative 'tc-yaml-publish-instruction'
 

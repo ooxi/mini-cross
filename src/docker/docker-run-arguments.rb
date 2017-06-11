@@ -32,11 +32,17 @@ require_relative '../id'
 class DockerRunArguments
 
 	def initialize
+		@publications = []
 		@user = DockerUserArgument.new nil
 		@volumes = []
 		@workdir = DockerWorkdirArgument.new nil
 	end
 
+
+	def publish(ip, host_port, container_port)
+		publication = DockerPublishArgument.new ip, host_port, container_port
+		@publications.push publication
+	end
 
 	def user(id)
 		@user = DockerUserArgument.new id
@@ -52,6 +58,7 @@ class DockerRunArguments
 	end
 
 
+
 	# @return Array of shell escaped arguments
 	def to_args
 		args = []
@@ -64,6 +71,10 @@ class DockerRunArguments
 		end
 
 		args.concat @workdir.to_args
+
+		@publications.each do |publication|
+			args.concat publication.to_args
+		end
 
 
 		return args
@@ -93,6 +104,54 @@ class DockerArgument
 	# @return Array of shell escaped arguments
 	def to_args
 		raise 'Missing implementation'
+	end
+end
+
+
+
+# @see https://docs.docker.com/engine/reference/run/#expose-incoming-ports
+class DockerPublishArgument < DockerArgument
+
+	def initialize(ip, host_port, container_port)
+		if (not ip.nil?) and (not ip.kind_of? String)
+			raise "\`ip' must be of type \`String' or nil but \`#{ip}' is of type \`#{ip.class}'"
+		end
+		if (not host_port.nil?) and (not host_port.is_a? Integer)
+			raise "\`host_port' must be of type \`Integer' or nil but \`#{host_port}' is of type \`#{host_port.class}'"
+		end
+		if (not container_port.nil?) and (not container_port.kind_of? Integer)
+			raise "\`container_port' must be of type \`Integer' or nil but \`#{container_port}' is of type \`#{container_port.class}'"
+		end
+
+		@ip = ip
+		@host_port = host_port
+		@container_port = container_port
+	end
+
+
+	def to_args
+		# ip:hostPort:containerPort
+		if (not @ip.nil?) and (not @host_port.nil?) and (not @container_port.nil?)
+			specification = [@ip, @host_port, @container_port]
+			return ['-p', specification.collect{|u| Shellwords.escape u}.join(':')]
+		end
+
+		# ip::containerPort
+		if (not @ip.nil?) and @host_port.nil? and (not @container_port.nil?)
+			return ['-p', (Shellwords.escape @ip) + '::' + (Shellwords.escape @container_port)]
+		end
+
+		# hostPort:containerPort
+		if @ip.nil? and (not @host_port.nil?) and (not @container_port.nil?)
+			return ['-p', (Shellwords.escape @host_port) + ':' + (Shellwords.escape @container_port)]
+		end
+
+		# containerPort
+		if @ip.nil? and @host_port.nil? and (not @container_port.nil?)
+			return ['-p', (Shellwords.escape @container_port)]
+		end
+
+		raise 'Illegal state'
 	end
 end
 

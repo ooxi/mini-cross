@@ -23,10 +23,12 @@ require 'pathname'
 require 'test/unit'
 require 'tmpdir'
 
+require_relative '../src/docker/factory'
 require_relative '../src/find-configuration'
 require_relative '../src/yaml/configuration-parser'
 require_relative '../src/yaml/instruction'
 require_relative '../src/yaml/run-instruction'
+require_relative '../src/id'
 
 
 
@@ -91,5 +93,58 @@ line_one
 		end
 	end
 
+
+
+
+
+	# YamlPublishInstruction
+	def test_ParsePublish
+		Dir.mktmpdir do |dir|
+			directory = Pathname.new dir
+
+			File.write(directory + 'mc.yaml', '
+---
+base: ubuntu:16.04
+publish:
+ - 8080:80
+---
+')
+
+			configuration = FindConfiguration.without_name directory
+			instructions = YamlConfigurationParser.parse configuration
+
+			collected_instructions = instructions.instance_variable_get("@instructions")
+			assert(collected_instructions.kind_of?(Array), 'Test assertion error, expected array of instructions inside YamlCollectionInstruction')
+
+			# YamlCollectionInstruction
+			#  - YamlBaseInstruction
+			#  - YamlPublishInstruction
+			# YamlRunInstruction
+			publish_instruction = collected_instructions[0].instance_variable_get('@instructions')[1]
+			assert(publish_instruction.kind_of?(YamlPublishInstruction), "Expected second instruction to be a YamlPublishInstruction but is \`#{publish_instruction}'")
+
+			publications = publish_instruction.instance_variable_get('@publications')
+			assert(publications.kind_of?(Array), "Expected @publications to be of kind Array but is \`#{publications}'")
+
+			assert_equal(1, publications.length, 'Expected exactly one publication')
+			assert_equal(nil, publications[0].ip, 'Wrong ip of publication')
+			assert_equal(8080, publications[0].host_port, 'Wrong host port of publication')
+			assert_equal(80, publications[0].container_port, 'Wrong container port of publication')
+
+
+			# Create docker container as kind of smoke test
+			context_factory = DockerContextFactory.new Id.real
+
+			context = context_factory.from_specification instructions.base
+			instructions.apply_to context
+
+			dr = context.run
+			dr_publications = dr.instance_variable_get('@publications')
+
+			assert(dr_publications.kind_of?(Array), "Expected @publications of DockerRunArguments to be of kind Array but is \`#{dr_publications}'")
+			assert_equal(1, dr_publications.length, 'Expected exactly one DockerRunArguments publication')
+			assert_equal(['-p', '8080:80'], dr_publications[0].to_args, 'Wrong publication')
+		end
+	end
 end
 
