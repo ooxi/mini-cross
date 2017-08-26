@@ -1,3 +1,6 @@
+<img src="https://rawgit.com/ooxi/mini-cross/master/logo.svg" alt="mini-cross" align="right" width="150" />
+
+
 # mini-cross
 
 Provides user configured development environments.
