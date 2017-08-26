@@ -62,6 +62,8 @@ def create_package(target)
 	sh "mkdir -p #{package_dir}/lib/app"
 	sh "cp -r ../bin #{package_dir}/lib/app/"
 	sh "cp -r ../src #{package_dir}/lib/app/"
+	sh "cp ../README.md #{package_dir}/README.md"
+	sh "cp ../LICENSE #{package_dir}/LICENSE"
 	sh "mkdir #{package_dir}/lib/ruby"
 	sh "tar -xJf packaging/traveling-ruby-#{TRAVELING_RUBY_VERSION}-#{target}.tar.xz -C #{package_dir}/lib/ruby"
 	sh "cp packaging/wrapper.sh #{package_dir}/#{PACKAGE_NAME}"
@@ -69,10 +71,15 @@ def create_package(target)
 	sh "cp ../Gemfile ../Gemfile.lock #{package_dir}/lib/vendor/"
 	sh "mkdir #{package_dir}/lib/vendor/.bundle"
 	sh "cp packaging/bundler-config #{package_dir}/lib/vendor/.bundle/config"
-	if !ENV['DIR_ONLY']
-		sh "tar -cJf #{package_dir}.tar.xz #{package_dir}"
-		sh "rm -rf #{package_dir}"
+	sh "tar -cJf #{package_dir}.tar.xz #{package_dir}"
+
+	# Provide npm package for linux-x86_64 only 
+	if 'linux-x86_64' == target
+		sh "cat package.template.json | jq '.version = \"#{VERSION}\"' > #{package_dir}/package.json"
+		sh "cp -r #{package_dir} #{package_dir}.npm"
 	end
+
+	sh "rm -rf #{package_dir}"
 end
 
 # @see https://github.com/phusion/traveling-ruby/issues/62#issuecomment-217791876

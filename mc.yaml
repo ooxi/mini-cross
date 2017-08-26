@@ -4,6 +4,8 @@ install:
  - bundler
  - curl
  - git
+ - jq
+ - npm
  - ruby
  - tar
  - xz-utils

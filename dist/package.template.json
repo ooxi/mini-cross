@@ -1,0 +1,26 @@
+{
+  "name": "mini-cross",
+  "version": "#{VERSION}",
+
+  "description": "Provides user configured development environments",
+  "keywords": [
+    "mini-cross",
+    "docker",
+    "dev-env"
+  ],
+
+  "license": "Zlib",
+  "author": "ooxi <violetland@mail.ru>",
+
+  "homepage": "https://github.com/ooxi/mini-cross",
+  "bugs": "https://github.com/ooxi/mini-cross/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ooxi/mini-cross.git"
+  },
+
+  "bin": {
+    "mc": "./mini-cross"
+  }
+}
+
