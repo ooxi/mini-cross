@@ -84,6 +84,14 @@ class TestFedoraDockerContext < Test::Unit::TestCase
 		self.execute_smoke_test 'fedora:25'
 	end
 
+	def test_Fedora_26
+		self.execute_smoke_test 'fedora:26'
+	end
+
+	def test_Fedora_27
+		self.execute_smoke_test 'fedora:27'
+	end
+
 	def test_Fedora_Rawhide
 		self.execute_smoke_test 'fedora:rawhide'
 	end
