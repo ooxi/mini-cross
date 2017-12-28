@@ -23,6 +23,7 @@ require 'test/unit'
 
 require_relative 'tc-cli'
 require_relative 'tc-docker-base'
+require_relative 'tc-docker-debian'
 require_relative 'tc-docker-docker-run-arguments'
 require_relative 'tc-docker-dockerfile'
 require_relative 'tc-docker-factory'
