@@ -1,4 +1,4 @@
-# Copyright (c) 2017 github/ooxi
+# Copyright (c) 2018 github/ooxi
 #     https://github.com/ooxi/mini-cross
 #
 # This software is provided 'as-is', without any express or implied warranty. In
@@ -19,22 +19,35 @@
 #
 #  3. This notice may not be removed or altered from any source distribution.
 
+require 'pathname'
+require 'shellwords'
 require 'test/unit'
+require 'tmpdir'
 
-require_relative 'tc-cli'
-require_relative 'tc-docker-base'
-require_relative 'tc-docker-debian'
-require_relative 'tc-docker-docker-run-arguments'
-require_relative 'tc-docker-dockerfile'
-require_relative 'tc-docker-factory'
-require_relative 'tc-docker-fedora'
-require_relative 'tc-docker-ubuntu'
-require_relative 'tc-docker-ubuntu-noninteractive'
-require_relative 'tc-find-configuration'
-require_relative 'tc-id'
-require_relative 'tc-shell'
-require_relative 'tc-yaml-base-instruction'
-require_relative 'tc-yaml-collection-instruction'
-require_relative 'tc-yaml-configuration-parser'
-require_relative 'tc-yaml-publish-instruction'
+require_relative '../src/docker-cli'
+require_relative '../src/docker/ubuntu'
+require_relative '../src/id'
+
+
+
+
+
+class TestNoninteractiveUbuntuDockerContext < Test::Unit::TestCase
+
+	# Installing PHP on Ubuntu 18.04 causes tzdata to ask about your
+	# geographic area which blocks installtion unless installation is done
+	# in non interactive mode
+	#
+	# @see issue #15
+	def test_Ubuntu_1804
+		ubuntu = UbuntuDockerContext.new Id.real, 'ubuntu:18.04'
+
+		ubuntu.install ['php']
+		image = DockerCli.build_context ubuntu
+
+		`#{Shellwords.join ['docker', 'rmi', image]}`
+
+	end
+
+end
 
