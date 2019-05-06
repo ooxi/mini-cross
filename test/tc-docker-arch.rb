@@ -1,4 +1,4 @@
-# Copyright (c) 2017 github/ooxi
+# Copyright (c) 2019 github/ooxi
 #     https://github.com/ooxi/mini-cross
 #
 # This software is provided 'as-is', without any express or implied warranty. In
@@ -25,22 +25,22 @@ require 'test/unit'
 require 'tmpdir'
 
 require_relative '../src/docker-cli'
-require_relative '../src/docker/fedora'
+require_relative '../src/docker/arch'
 require_relative '../src/id'
 
 
 
 
 
-class TestFedoraDockerContext < Test::Unit::TestCase
+class TestArchDockerContext < Test::Unit::TestCase
 
-	# Builds a minimal Fedora image
+	# Builds a minimal Arch Linux image
 	def execute_smoke_test(version)
-		fedora = FedoraDockerContext.new Id.real, version
-		fedora.install ['cowsay']
+		arch = ArchDockerContext.new Id.real, version
+		arch.install ['cowsay']
 
 
-		# Build Fedora image
+		# Build Arch Linux image
 		cookie = '0bd82167-021e-4e9a-b2f1-0dd44b56a671'
 		image = nil
 
@@ -51,19 +51,19 @@ class TestFedoraDockerContext < Test::Unit::TestCase
 			File.write(file, "#!/usr/bin/cowsay #{cookie}")
 			File.chmod(0777, file)
 
-			fedora.copy directory
-			image = DockerCli.build_context fedora
+			arch.copy directory
+			image = DockerCli.build_context arch
 		end
 
 		assert_not_nil(image, 'Invalid docker image identification')
 
 
-		# Run Fedora container
+		# Run Arch Linux container
 		Dir.mktmpdir do |dir|
 			base_directory = Pathname.new dir
 			command = ['/cowsay.sh']
 
-			output = `#{DockerCli.run_cmd image, fedora.run, command}`
+			output = `#{DockerCli.run_cmd image, arch.run, command}`
 			assert(output.include?(cookie), "Output should include cookie \`#{cookie}' but \`#{output}' does not")
 			assert(output.include?('(__)\\       )\\/\\'), "Output should include cow but \`#{output}' does not")
 		end
@@ -75,34 +75,8 @@ class TestFedoraDockerContext < Test::Unit::TestCase
 
 
 
-	# Seems to work, but cowsay is broken: Can't locate Encode.pm in @INC
-	# (you may need to install the Encode module)
-#	def test_Fedora_24
-#		self.execute_smoke_test 'fedora:24'
-#	end
-
-	def test_Fedora_25
-		self.execute_smoke_test 'fedora:25'
-	end
-
-	def test_Fedora_26
-		self.execute_smoke_test 'fedora:26'
-	end
-
-	def test_Fedora_27
-		self.execute_smoke_test 'fedora:27'
-	end
-
-	def test_Fedora_28
-		self.execute_smoke_test 'fedora:28'
-	end
-
-	def test_Fedora_29
-		self.execute_smoke_test 'fedora:29'
-	end
-
-	def test_Fedora_Rawhide
-		self.execute_smoke_test 'fedora:rawhide'
+	def test_Arch_Base
+		self.execute_smoke_test 'archlinux/base'
 	end
 end
 

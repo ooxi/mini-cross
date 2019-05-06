@@ -21,6 +21,8 @@
 
 require 'test/unit'
 
+require_relative '../src/docker/arch'
+require_relative '../src/docker/debian'
 require_relative '../src/docker/factory'
 require_relative '../src/docker/fedora'
 require_relative '../src/docker/ubuntu'
@@ -28,6 +30,20 @@ require_relative '../src/docker/ubuntu'
 
 
 class TestDockerContextFactory < Test::Unit::TestCase
+
+
+	def test_Arch
+		factory = DockerContextFactory.new Id.real
+		arch = factory.from_specification 'archlinux/base'
+		assert(arch.kind_of?(ArchDockerContext), '`archlinux/base\' should have led to ArchDockerContext')
+	end
+
+
+	def test_Debian
+		factory = DockerContextFactory.new Id.real
+		debian_buster = factory.from_specification 'debian:buster'
+		assert(debian_buster.kind_of?(DebianDockerContext), '`debian:buster\' should have led to DebianDockerContext')
+	end
 
 
 	def test_Fedora
