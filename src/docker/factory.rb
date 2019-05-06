@@ -20,6 +20,7 @@
 #  3. This notice may not be removed or altered from any source distribution.
 
 require_relative '../id'
+require_relative 'arch'
 require_relative 'debian'
 require_relative 'fedora'
 require_relative 'ubuntu'
@@ -29,9 +30,10 @@ require_relative 'ubuntu'
 # Provides a factory for creating {@link BaseDockerContext} instances from
 # specification
 #
-#  a) `debian:…' → {@link DebianDockerContext}
-#  b) `fedora:…' → {@link FedoraDockerContext}
-#  c) `ubuntu:…' → {@link UbuntuDockerContext}
+#  a) `archlinux/…' → {@link ArchDockerContext}
+#  b) `debian:…' → {@link DebianDockerContext}
+#  c) `fedora:…' → {@link FedoraDockerContext}
+#  d) `ubuntu:…' → {@link UbuntuDockerContext}
 #
 # @see YamlBaseInstruction
 class DockerContextFactory
@@ -48,7 +50,10 @@ class DockerContextFactory
 
 	def from_specification(specification)
 
-		if specification.start_with? 'debian:'
+		if specification.start_with? 'archlinux/'
+			return ArchDockerContext.new @id, specification
+
+		elsif specification.start_with? 'debian:'
 			return DebianDockerContext.new @id, specification
 
 		elsif specification.start_with? 'fedora:'
