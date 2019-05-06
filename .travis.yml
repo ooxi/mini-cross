@@ -1,0 +1,12 @@
+language: ruby
+
+services:
+ - docker
+
+install:
+ - npm install -g mini-cross       # Test latest npm package
+ - bundle install --system      # Install dependencies from Gemfile
+
+script:
+ - ruby test/tc.rb              # Execute all test cases
+
