@@ -9,6 +9,53 @@ Provides user configured development environments.
 
 
 
+## Configuration
+
+```yaml
+---
+base: ubuntu:18.04	# ①
+install:
+ - nodejs		# ②
+ - npm
+publish:
+ - 8080:80		# ③
+ - 8443:443
+---
+#!/bin/bash
+
+sudo npm install -g mini-cross	# ④
+```
+
+The configuration file contains two sections: first a YAML frontmatter section
+followed by an optional shell script. Splitting the configuration into a
+declarative and an imperative section enables describing common operations with
+minimal boilerplate while still allowing arbitary actions.
+
+1. `base` describes the [Docker image][base-docker-image] to be used as starting
+   point for further setup.
+2. `install` contains a list of packages to be installed from the distribution's
+   package manager
+3. `publish` contains a list of `<host port>:<container port>` declarations
+   describing [port forwarding][docker-publish] from host to container
+4. A shell script containing arbritrary commands to be executed while creating
+   the container's image
+
+Since mini-cross needs to know how to install packages on a certain
+distribution, not all Docker images are supported as base images. Current
+support includes:
+
+* [Arch Linux](src/docker/arch.rb)
+* [Debian](src/docker/debian.rb)
+* [Fedora](src/docker/fedora.rb)
+* [Ubuntu](src/docker/ubuntu.rb)
+
+[base-docker-image]: https://docs.docker.com/engine/reference/builder/#from
+[docker-publish]: https://docs.docker.com/engine/reference/run/#expose-incoming-ports
+
+
+
+
+
 ## CLI
 
 There two ways of invoking mini-cross
