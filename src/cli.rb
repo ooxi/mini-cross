@@ -75,7 +75,7 @@ class Cli
 
 		for arg in argv
 			if arg.start_with? '--'
-				options.append arg
+				options.push arg
 			else
 				return options
 			end
