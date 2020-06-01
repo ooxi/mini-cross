@@ -87,12 +87,8 @@ class TestUbuntuDockerContext < Test::Unit::TestCase
 		self.execute_smoke_test 'ubuntu:18.04'
 	end
 
-	def test_Ubuntu_1810
-		self.execute_smoke_test 'ubuntu:18.10'
-	end
-
-	def test_Ubuntu_1904
-		self.execute_smoke_test 'ubuntu:19.04'
+	def test_Ubuntu_2004
+		self.execute_smoke_test 'ubuntu:20.04'
 	end
 
 end
