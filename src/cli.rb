@@ -23,13 +23,13 @@
 
 # Parses the desired invocation from ARGV
 #
-#     [<machine> <command>*]
+#     [<options>* <machine> <command>*]
 class Cli
 
 	def initialize(argv)
-		@argv = argv
+		@options = self.class.parse_options_from_arguments argv
+		@argv = self.class.parse_machine_and_command_from_arguments argv
 	end
-
 
 
 	# Machine can be optional, but if at least one argument is supplied, the
@@ -53,6 +53,45 @@ class Cli
 	def command
 		return [] if @argv.empty?
 		return @argv[1..@argv.size]
+	end
+
+
+	# @return true iff. interactive/tty mode should be used by `docker run`
+	def tty
+		return !(@options.include? '--no-tty')
+	end
+
+
+
+
+
+	# @return The options to mini-cross from `argv`, which are all elements
+	#     starting with `--` until the first element not starting with that
+	#     prefix
+	#
+	# @warning Should be private
+	def self.parse_options_from_arguments(argv)
+		options = []
+
+		for arg in argv
+			if arg.start_with? '--'
+				options.append arg
+			else
+				return options
+			end
+		end
+
+		return options
+	end
+
+
+	# @return Machine name followed by command (everything after the
+	#     options)
+	#
+	# @warning Should be private
+	def self.parse_machine_and_command_from_arguments(argv)
+		options = self.parse_options_from_arguments argv
+		return argv[options.size..argv.size]
 	end
 end
 

@@ -35,6 +35,7 @@ class TestDockerContext < Test::Unit::TestCase
 
 		assert_nil(cli.machine, 'Should assume default machine')
 		assert_equal([], cli.command, 'No command should be provided')
+		assert(cli.tty, 'Should assume tty')
 	end
 
 
@@ -43,22 +44,64 @@ class TestDockerContext < Test::Unit::TestCase
 
 		assert_equal('machine', cli.machine, 'Wrong machine')
 		assert_equal([], cli.command, 'No command should be provided')
+		assert(cli.tty, 'Should assume tty')
 	end
 
 
 	def test_UnnamedMachineWithArgv
-		cli = Cli.new ['_', 'ab', 'c']
+		cli = Cli.new ['_', 'ab', '--c']
 
 		assert_nil(cli.machine, 'Should assume default machine')
-		assert_equal(['ab', 'c'], cli.command, 'Wrong command')
+		assert_equal(['ab', '--c'], cli.command, 'Wrong command')
+		assert(cli.tty, 'Should assume tty')
 	end
 
 
 	def test_NamedMachineWithArgv
-		cli = Cli.new ['machine', 'ab', 'c']
+		cli = Cli.new ['machine', 'ab', '--c']
 
 		assert_equal('machine', cli.machine, 'Wrong machine')
-		assert_equal(['ab', 'c'], cli.command, 'Wrong command')
+		assert_equal(['ab', '--c'], cli.command, 'Wrong command')
+		assert(cli.tty, 'Should assume tty')
+	end
+
+
+
+
+
+	def test_NoTtyUnnamedMachineNoArgv
+		cli = Cli.new ['--no-tty']
+
+		assert_nil(cli.machine, 'Should assume default machine')
+		assert_equal([], cli.command, 'No command should be provided')
+		assert(!cli.tty, 'No tty was explicitly required')
+	end
+
+
+	def test_NoTtyNamedMachineNoArgv
+		cli = Cli.new ['--no-tty', 'machine']
+
+		assert_equal('machine', cli.machine, 'Wrong machine')
+		assert_equal([], cli.command, 'No command should be provided')
+		assert(!cli.tty, 'No tty was explicitly required')
+	end
+
+
+	def test_NoTtyUnnamedMachineWithArgv
+		cli = Cli.new ['--no-tty', '_', 'ab', '--c']
+
+		assert_nil(cli.machine, 'Should assume default machine')
+		assert_equal(['ab', '--c'], cli.command, 'Wrong command')
+		assert(!cli.tty, 'No tty was explicitly required')
+	end
+
+
+	def test_NoTtyNamedMachineWithArgv
+		cli = Cli.new ['--no-tty', 'machine', 'ab', '--c']
+
+		assert_equal('machine', cli.machine, 'Wrong machine')
+		assert_equal(['ab', '--c'], cli.command, 'Wrong command')
+		assert(!cli.tty, 'No tty was explicitly required')
 	end
 end
 

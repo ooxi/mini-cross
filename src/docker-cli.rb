@@ -92,26 +92,32 @@ class DockerCli
 	#
 	# @param image Docker image identification
 	# @param arguments Arguments to passed to docker run
+	# @param tty Should `docker run` require a tty
 	# @param command Array of commands to be passed as arguments to docker
 	#     entry point
-	def self.run(image, arguments, command)
-		exec(DockerCli.run_cmd image, arguments, command)
+	def self.run(image, arguments, tty, command)
+		exec(DockerCli.run_cmd image, arguments, tty, command)
 	end
 
 	# Returns the command, {@link DockerCli.run} should exec.
 	#
 	# @VisibleForTesting
-	def self.run_cmd(image, arguments, command)
+	def self.run_cmd(image, arguments, tty, command)
 		if not arguments.kind_of? DockerRunArguments
 			raise "\`arguments' must be of type DockerRunArguments"
 		end
 
+		if not [true, false].include? tty
+			raise "\`tty' must be of type bool"
+		end
+
+		tty = tty ? ['--interactive', '--tty'] : []
+
 		escaped_arguments = [
 			'docker',
 			'run',
-			'-it',
 			'--rm',
-		] + arguments.to_args
+		] + tty + arguments.to_args
 
 		unescaped_arguments = [image] + command
 

@@ -76,7 +76,7 @@ second is crafted toward comfort for interactive use.
 
 ### Command invocation
 
-    mini-cross <machine> <command>+
+    mini-cross <options>* <machine> <command>*
 
 When using mini-cross with command invocation, a *machine* has always to be
 specified. The *machine* determines where to look for the mini-cross
@@ -86,6 +86,9 @@ though).
 
 This command will start the referenced machine and execute the command using
 the default docker entry point (most likely a [bash][1] shell).
+
+When using mini-cross in a CI, it might be benefitial to pass `--no-tty` as
+option in order to not require a pty.
 
 
 

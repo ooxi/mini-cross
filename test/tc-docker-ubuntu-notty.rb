@@ -1,4 +1,4 @@
-# Copyright (c) 2019 github/ooxi
+# Copyright (c) 2020 github/ooxi
 #     https://github.com/ooxi/mini-cross
 #
 # This software is provided 'as-is', without any express or implied warranty. In
@@ -25,45 +25,49 @@ require 'test/unit'
 require 'tmpdir'
 
 require_relative '../src/docker-cli'
-require_relative '../src/docker/arch'
+require_relative '../src/docker/ubuntu'
 require_relative '../src/id'
 
 
 
 
 
-class TestArchDockerContext < Test::Unit::TestCase
+class TestNoTtyUbuntuDockerContext < Test::Unit::TestCase
 
-	# Builds a minimal Arch Linux image
-	def execute_smoke_test(version)
-		arch = ArchDockerContext.new Id.real, version
-		arch.install ['cowsay']
+	# Running mini-cross in a CI environment without full TTY support fails,
+	# unless the `--no-tty` argument is passed to mini-cross
+	def testNoTty
+		ubuntu = UbuntuDockerContext.new Id.real, 'ubuntu:20.04'
+		ubuntu.install ['cowsay']
 
 
-		# Build Arch Linux image
-		cookie = '0bd82167-021e-4e9a-b2f1-0dd44b56a671'
+		# Build Ubuntu image
+		cookie = '6fedaae0-4787-4272-b8a6-03d1463ad08b'
 		image = nil
 
 		Dir.mktmpdir do |dir|
 			directory = Pathname.new dir
 
 			file = directory + 'cowsay.sh'
-			File.write(file, "#!/usr/bin/cowsay #{cookie}")
+			File.write(file, "#!/usr/games/cowsay #{cookie}")
 			File.chmod(0777, file)
 
-			arch.copy directory
-			image = DockerCli.build_context arch
+			ubuntu.copy directory
+			image = DockerCli.build_context ubuntu
 		end
 
 		assert_not_nil(image, 'Invalid docker image identification')
 
 
-		# Run Arch Linux container
+		# Run Ubuntu container
 		Dir.mktmpdir do |dir|
 			base_directory = Pathname.new dir
 			command = ['/cowsay.sh']
 
-			output = `#{DockerCli.run_cmd image, arch.run, true, command}`
+			# @see https://superuser.com/a/1430883
+			tty = false
+			output = `true | #{DockerCli.run_cmd image, ubuntu.run, tty, command}`
+
 			assert(output.include?(cookie), "Output should include cookie \`#{cookie}' but \`#{output}' does not")
 			assert(output.include?('(__)\\       )\\/\\'), "Output should include cow but \`#{output}' does not")
 		end
@@ -71,12 +75,5 @@ class TestArchDockerContext < Test::Unit::TestCase
 		`#{Shellwords.join ['docker', 'rmi', image]}`
 	end
 
-
-
-
-
-	def test_Arch_Base
-		self.execute_smoke_test 'archlinux/base'
-	end
 end
 

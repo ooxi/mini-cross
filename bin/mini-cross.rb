@@ -84,5 +84,5 @@ dr.workdir	working_directory
 
 # Build image and switch to docker container
 image = DockerCli.build_context context
-DockerCli.run image, context.run, cli.command
+DockerCli.run image, context.run, cli.tty, cli.command
 
