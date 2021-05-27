@@ -76,7 +76,7 @@ class TestArchDockerContext < Test::Unit::TestCase
 
 
 	def test_Arch_Base
-		self.execute_smoke_test 'archlinux/base'
+		self.execute_smoke_test 'archlinux:base'
 	end
 end
 
