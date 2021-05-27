@@ -54,15 +54,16 @@ class UbuntuDockerContext < BaseDockerContext
 		df.run_sh	'apt-get -y update && apt-get -y install sudo'
 		df.run_sh	"echo 'ALL            ALL = (ALL) NOPASSWD: ALL' >> /etc/sudoers"
 
-		# Ubuntu 18.04 is missing tzdata in default installation.
-		#
-		# Implicitly installing tzdata will cause it to prompt for
-		# timezone and block the installation, even when employing
+		# Installing certain packages is causing a prompt during package
+		# installation and will in turn block, even when employing
 		# {@code DEBIAN_FRONTEND=noninteractive}.
 		#
-		# Because of this we are forced to manually install tzdata,
-		# regardless of whether or not it will actually be used.
-		df.run_sh	'apt-get -y update && apt-get -y install tzdata'
+		# Because of this we are forced to globally set non interactive
+		# frontend which will persist even into the container runtime.
+		#
+		# @see https://github.com/moby/moby/issues/27988#issuecomment-600831315
+		df.run_sh	'apt-get -y update && apt-get -y install debconf'
+		df.run_sh       "echo 'debconf debconf/frontend select Noninteractive' | sudo debconf-set-selections"
 
 		# Add user in context similar to host user
 		df.run_exec	['groupadd', '--gid', gid, group]
