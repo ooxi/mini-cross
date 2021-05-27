@@ -30,7 +30,7 @@ require_relative 'ubuntu'
 # Provides a factory for creating {@link BaseDockerContext} instances from
 # specification
 #
-#  a) `archlinux/…' → {@link ArchDockerContext}
+#  a) `archlinux:…' → {@link ArchDockerContext}
 #  b) `debian:…' → {@link DebianDockerContext}
 #  c) `fedora:…' → {@link FedoraDockerContext}
 #  d) `ubuntu:…' → {@link UbuntuDockerContext}
@@ -50,7 +50,7 @@ class DockerContextFactory
 
 	def from_specification(specification)
 
-		if specification.start_with? 'archlinux/'
+		if specification.start_with? 'archlinux:'
 			return ArchDockerContext.new @id, specification
 
 		elsif specification.start_with? 'debian:'

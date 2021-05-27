@@ -31,7 +31,7 @@ require_relative 'dockerfile'
 class ArchDockerContext < BaseDockerContext
 
 	# @param id {@link Id}-like object
-	# @param from Docker image to be used as base (e.g. `archlinux/base')
+	# @param from Docker image to be used as base (e.g. `archlinux:base')
 	def initialize(id, from)
 		uid = id.user_id
 		gid = id.group_id

@@ -34,8 +34,8 @@ class TestDockerContextFactory < Test::Unit::TestCase
 
 	def test_Arch
 		factory = DockerContextFactory.new Id.real
-		arch = factory.from_specification 'archlinux/base'
-		assert(arch.kind_of?(ArchDockerContext), '`archlinux/base\' should have led to ArchDockerContext')
+		arch = factory.from_specification 'archlinux:base'
+		assert(arch.kind_of?(ArchDockerContext), '`archlinux:base\' should have led to ArchDockerContext')
 	end
 
 
