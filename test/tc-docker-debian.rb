@@ -86,6 +86,5 @@ class TestDebianDockerContext < Test::Unit::TestCase
 	def test_Debian_Buster
 		self.execute_smoke_test 'debian:buster'
 	end
-
 end
 
