@@ -1,0 +1,31 @@
+name: CI
+
+
+on:
+  push:
+  pull_request:
+
+
+jobs:
+  ci:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: true
+
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.1'
+
+    - name: Test latest npm package
+      run: npm install -g mini-cross
+
+    - name: Install dependencies from Gemfile
+      run: bundle install --system
+
+    - name: Execute all test cases
+      run: ruby test/tc.rb
+
