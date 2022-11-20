@@ -63,7 +63,7 @@ class TestArchDockerContext < Test::Unit::TestCase
 			base_directory = Pathname.new dir
 			command = ['/cowsay.sh']
 
-			output = `#{DockerCli.run_cmd image, arch.run, true, command}`
+			output = `#{DockerCli.run_cmd image, arch.run, false, command}`
 			assert(output.include?(cookie), "Output should include cookie \`#{cookie}' but \`#{output}' does not")
 			assert(output.include?('(__)\\       )\\/\\'), "Output should include cow but \`#{output}' does not")
 		end

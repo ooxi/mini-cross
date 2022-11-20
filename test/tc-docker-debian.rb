@@ -63,7 +63,7 @@ class TestDebianDockerContext < Test::Unit::TestCase
 			base_directory = Pathname.new dir
 			command = ['/cowsay.sh']
 
-			output = `#{DockerCli.run_cmd image, debian.run, true, command}`
+			output = `#{DockerCli.run_cmd image, debian.run, false, command}`
 			assert(output.include?(cookie), "Output should include cookie \`#{cookie}' but \`#{output}' does not")
 			assert(output.include?('(__)\\       )\\/\\'), "Output should include cow but \`#{output}' does not")
 		end
@@ -74,10 +74,6 @@ class TestDebianDockerContext < Test::Unit::TestCase
 
 
 
-
-	def test_Debian_Jessie
-		self.execute_smoke_test 'debian:jessie'
-	end
 
 	def test_Debian_Stretch
 		self.execute_smoke_test 'debian:stretch'
