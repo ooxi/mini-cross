@@ -64,7 +64,7 @@ class BaseDockerContext
 	public
 	def copy(source)
 		raise '`source\' must be a pathname' unless source.kind_of?(Pathname)
-		rause "`source' must be a directory but #{source} is not" unless source.directory?
+		raise "`source' must be a directory but #{source} is not" unless source.directory?
 
 		# Sources will be copied into context directory named like array
 		# index
