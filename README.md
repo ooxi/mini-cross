@@ -13,7 +13,7 @@ Provides user configured development environments.
 
 ```yaml
 ---
-base: ubuntu:18.04	# ①
+base: ubuntu:22.04	# ①
 install:
  - nodejs		# ②
  - npm
