@@ -117,6 +117,8 @@ class DockerCli
 			'docker',
 			'run',
 			'--rm',
+			'-e', 'DISPLAY=`(echo $DISPLAY)`',
+			'-v', '/tmp/.X11-unix:/tmp/.X11-unix',
 		] + tty + arguments.to_args
 
 		unescaped_arguments = [image] + command
