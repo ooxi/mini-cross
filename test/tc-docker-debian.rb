@@ -75,12 +75,12 @@ class TestDebianDockerContext < Test::Unit::TestCase
 
 
 
-	def test_Debian_Stretch
-		self.execute_smoke_test 'debian:stretch'
-	end
-
 	def test_Debian_Buster
 		self.execute_smoke_test 'debian:buster'
+	end
+
+	def test_Debian_Bullseye
+		self.execute_smoke_test 'debian:bullseye'
 	end
 end
 
